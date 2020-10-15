@@ -1,4 +1,4 @@
 remote_dependency: easy_changer {
   url: "https://github.com/YuriiYashchenko/easy_changer"
-  ref: "43ab332efbc3231361174788bf17af2945e99467"
+  ref: "a03beb101a8c636bbb6a050e250b665f56c60dbc"
 }
