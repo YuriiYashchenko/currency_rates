@@ -33,16 +33,9 @@ view: sales {
 
   dimension_group: date_part {
     type: time
-    timeframes: [
-      raw,
-      date,
-      week,
-      month,
-      quarter,
-      year
-    ]
     convert_tz: no
     datatype: date
+    timeframes: [date]
     sql: ${TABLE}.Date_Part ;;
   }
 
