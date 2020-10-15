@@ -3,6 +3,7 @@ view: sales {
     ;;
 
   dimension: base_currency_code {
+    label: "Location Currency Code"
     type: string
     sql: ${TABLE}.BaseCurrencyCode ;;
   }
