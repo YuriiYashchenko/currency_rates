@@ -10,6 +10,22 @@ view: sales {
     sql: ${TABLE}.BaseCurrencyCode ;;
   }
 
+  measure: notification_message {
+    type: string
+    sql: CASE
+        -- Empty Notification
+        WHEN COUNT(BaseCurrencyCode) = 0 or -- There are no any currencies entered for company
+             (COUNT(DISTINCT BaseCurrencyCode) = 1  -- only 1 currency (Ex: US companies)
+              AND COUNT(DISTINCT if(BaseCurrencyCode = ${exchange_rates.cur_to_code}, BaseCurrencyCode, null)) = 1) -- distinguish case, when location filter is applied
+        THEN ""
+
+        -- Only open source data notification
+        ELSE CONCAT("Exchange Rates for ", CAST(COUNT(DISTINCT BaseCurrencyCode) AS STRING),
+          " currencies were used from https://openexchangerates.org/")
+        END  ;;
+
+  }
+
   dimension: currency_symbol {
     type: string
     sql:
@@ -118,6 +134,7 @@ view: sales {
   }
 
   dimension: plu {
+    label: "Item"
     type: number
     sql: ${TABLE}.Plu ;;
   }

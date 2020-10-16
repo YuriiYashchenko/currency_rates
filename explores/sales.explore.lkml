@@ -1,5 +1,5 @@
-# include: "//easy_changer/views/exchange_rates.view"
-include: "/views/exchange_rates.view"
+include: "//easy_changer/views/exchange_rates.view"
+# include: "/views/exchange_rates.view" # TESTING
 include: "/views/sales.view"
 
 explore: sales {
