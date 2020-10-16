@@ -90,13 +90,24 @@ view: sales {
     timeframes: [
       raw,
       time,
+      time_of_day,
+      hour_of_day,
+      hour,
       date,
       week,
       month,
       quarter,
       year
     ]
-    sql: ${TABLE}.Created ;;
+    sql: cast(${TABLE}.Created as timestamp) ;;
+    # hidden: yes
+  }
+
+  dimension: hour_sales {
+    label: "Sales Hour"
+    description: "Day Hour of Sale"
+    type: string
+    sql:  FORMAT_TIME("%I %p", cast(${created_time_of_day} as TIME)) ;; # Something wrong
     hidden: yes
   }
 
@@ -134,9 +145,9 @@ view: sales {
   }
 
   dimension: plu {
-    label: "Item"
-    type: number
-    sql: ${TABLE}.Plu ;;
+    label: "Item Code"
+    type: string
+    sql: cast(${TABLE}.PLU as string);;
   }
 
   set: details_1 {
@@ -191,9 +202,9 @@ view: sales {
     description: "Sum of Net Sales"
     type: sum
     value_format_name: decimal_2
+    html: @{currency_format};;
     sql: ${TABLE}.NetSalesAmt ;;
     drill_fields: [details_1*, amt_net_sales]
-    html: @{currency_format};;
   }
 
   measure: avg_transaction_value {
@@ -212,9 +223,9 @@ view: sales {
     # view_label: "Exchange to Base Currency"
     type: sum
     value_format_name: decimal_2
-    sql: ${TABLE}.COGS * ${exchange_rates.exchange_rate} ;;
     html: @{base_currency_format};;
-    drill_fields: [flat_sale_comparison.details_1*, flat_sale.details_1*, amt_cost_converted]
+    sql: ${TABLE}.COGS * ${exchange_rates.exchange_rate} ;;
+    drill_fields: [details_1*, amt_cost_converted]
   }
 
   measure: amt_net_sales_converted {
@@ -223,9 +234,20 @@ view: sales {
     # view_label: "Exchange to Base Currency"
     type: sum
     value_format_name: decimal_2
-    sql: ${TABLE}.NetSalesAmt * ${exchange_rates.exchange_rate} ;;
     html: @{base_currency_format};;
-    drill_fields: [flat_sale_comparison.details_1*, flat_sale.details_1*, amt_net_sales_converted]
+    sql: ${TABLE}.NetSalesAmt * ${exchange_rates.exchange_rate} ;;
+    drill_fields: [details_1*, amt_net_sales_converted]
+  }
+
+  measure: amt_margin_converted {
+    label: "Sum of Margin Converted"
+    description: "Sum of margin"
+    # view_label: "Exchange to Base Currency"
+    type: number
+    value_format_name: decimal_2
+    html: @{base_currency_format};;
+    sql: ${amt_net_sales_converted} - ${amt_cost_converted} ;;
+    drill_fields: [details_1*, amt_margin_converted]
   }
 
   measure: avg_transaction_value_converted {
@@ -234,9 +256,9 @@ view: sales {
     # view_label: "Exchange to Base Currency"
     type: number
     value_format_name: decimal_2
-    sql: safe_divide(${amt_net_sales_converted},${num_receipts}) ;;
     html: @{base_currency_format};;
-    drill_fields: [flat_sale_comparison.details_1*, flat_sale.details_1*, amt_net_sales_converted, num_receipts, avg_transaction_value_converted]
+    sql: safe_divide(${amt_net_sales_converted},${num_receipts}) ;;
+    drill_fields: [details_1*, amt_net_sales_converted, num_receipts, avg_transaction_value_converted]
   }
 
 }
